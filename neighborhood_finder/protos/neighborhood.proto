@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package neighborhood_finder;
+
+import "protos/participants.proto";
+
+message GetNeighborhoodRequest {
+  repeated Participants participants = 1;
+}
+
+message GetNeighborhoodResponse {
+  string neighborhood = 1;
+}
+
+service NeighborhoodFinder {
+  rpc GetNeighborhood(GetNeighborhoodRequest) returns (GetNeighborhoodResponse);
+}

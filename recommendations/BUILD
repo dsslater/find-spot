@@ -13,14 +13,29 @@ cc_library(
     ],
 )
 
-cc_binary(
-    name = "recommendation_service",
-    srcs = ["recommendations_main.cc"],
-    defines = ["BAZEL_BUILD"],
+cc_library(
+    name = "recommendations_service",
+    srcs = ["recommendations_service.cc"],
+    hdrs = ["recommendations_service.h"],
     deps = [
         ":get_recommendations_handler",
+        "//neighborhood_finder:neighborhood_finder_service",
+        "//neighborhood_finder/protos:neighborhood_cc_grpc",
+        "//recommendations/protos:recommendations_cc_grpc",
+        "@com_github_google_glog//:glog",
+        "@com_github_grpc_grpc//:grpc++",
+    ],
+)
+
+cc_binary(
+    name = "recommendations_service_main",
+    srcs = ["recommendations_service_main.cc"],
+    defines = ["BAZEL_BUILD"],
+    deps = [
+        ":recommendations_service",
         "//recommendations/protos:recommendations_cc_grpc",
         "@com_github_gflags_gflags//:gflags",
+        "@com_github_google_glog//:glog",
         "@com_github_grpc_grpc//:grpc++",
         "@com_github_grpc_grpc//:grpc++_reflection",
     ],

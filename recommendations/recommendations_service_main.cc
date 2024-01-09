@@ -2,44 +2,33 @@
 #include <memory>
 #include <string>
 
-#include <grpcpp/grpcpp.h>
-#include <glog/logging.h>
 #include <gflags/gflags.h>
+#include <glog/logging.h>
+#include <grpcpp/grpcpp.h>
 
-#include "recommendations/get_recommendations_handler.h"
+#include "recommendations/recommendations_service.h"
 #include "recommendations/protos/recommendations.grpc.pb.h"
 
+using ::grpc::Channel;
+using ::grpc::ClientContext;
 using ::grpc::InsecureServerCredentials;
 using ::grpc::Server;
 using ::grpc::ServerBuilder;
-using ::grpc::ServerContext;
-using ::grpc::Status;
-using ::recommendations::GetRecommendationsRequest;
-using ::recommendations::GetRecommendationsResponse;
-using ::recommendations::Recommendations;
+using ::recommendations::CreateRecommendationsService;
 
-// Logic and data behind the server's behavior.
 
-class RecommendationsServiceImpl final : public Recommendations::Service {
-  Status GetRecommendations(ServerContext *context,
-                            const GetRecommendationsRequest *request,
-                            GetRecommendationsResponse *reply) override {
-    return HandleGetRecommendations(context, request, reply);
-  }
-};
-
-void RunServer() {
+void RunServer(std::shared_ptr<grpc::Channel> neighborhood_channel) {
   std::string address = "0.0.0.0";
   std::string port = "50051";
   std::string server_address = address + ":" + port;
-  RecommendationsServiceImpl service;
+  auto service = CreateRecommendationsService(neighborhood_channel);
 
   ServerBuilder builder;
   // Listen on the given address without any authentication mechanism.
   builder.AddListeningPort(server_address, InsecureServerCredentials());
   // Register "service" as the instance through which we'll communicate with
   // clients. In this case it corresponds to an *synchronous* service.
-  builder.RegisterService(&service);
+  builder.RegisterService(service.get());
   // Finally assemble the server.
   std::unique_ptr<Server> server(builder.BuildAndStart());
   LOG(INFO) << "Server listening on " << server_address << std::endl;
@@ -53,7 +42,10 @@ int main(int argc, char **argv) {
   google::InitGoogleLogging(argv[0]);
   gflags::ParseCommandLineFlags(&argc, &argv, true);
 
-  RunServer();
+  std::shared_ptr<grpc::Channel> neighborhood_channel = grpc::CreateChannel(
+      "localhost:50052", grpc::InsecureChannelCredentials());
+
+  RunServer(neighborhood_channel);
 
   return 0;
 }
