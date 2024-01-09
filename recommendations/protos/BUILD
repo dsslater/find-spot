@@ -5,7 +5,12 @@ load("@com_github_grpc_grpc//bazel:cc_grpc_library.bzl", "cc_grpc_library")
 
 proto_library(
     name = "recommendations_proto",
-    srcs = ["recommendations.proto"],
+    srcs = [
+        "recommendations.proto",
+    ],
+    deps = [
+        "//protos:participants_proto",
+    ],
 )
 
 cc_proto_library(

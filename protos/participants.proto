@@ -1,0 +1,7 @@
+syntax = "proto3";
+
+message Participants {
+  float longitude = 1;
+  float latitude = 2;
+  int32 participant_count =3;
+}
