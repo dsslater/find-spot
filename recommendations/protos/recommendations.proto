@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package recommendations;
+
+service GetRecommendations {
+  rpc GetRecommendations(GetRecommendationsRequest) returns (GetRecommendationsResponse);
+}
+
+message Participants {
+  float longitude = 1;
+  float latitude = 2;
+  int32 participant_count =3;
+}
+
+message GetRecommendationsRequest {
+  string user_id = 1;
+  repeated Participants participants = 2;
+}
+
+message GetRecommendationsResponse {
+  repeated string recommendations = 1;
+}
+
+// The greeting service definition.
+service Recommendations {
+    // Sends a greeting
+    rpc GetRecommendations (GetRecommendationsRequest) returns (GetRecommendationsResponse) {}
+  }
